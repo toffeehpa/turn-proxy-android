@@ -1,0 +1,89 @@
+package com.freeturn.app.data.config
+
+import java.security.SecureRandom
+
+private val HEX_DIGITS = "0123456789abcdef".toCharArray()
+
+internal fun ByteArray.toHex(): String {
+    val out = CharArray(size * 2)
+    for (i in indices) {
+        val v = this[i].toInt() and 0xFF
+        out[i * 2] = HEX_DIGITS[v ushr 4]
+        out[i * 2 + 1] = HEX_DIGITS[v and 0x0F]
+    }
+    return String(out)
+}
+
+object DnsMode {
+    const val AUTO = "auto"
+    const val PLAIN = "plain"
+    const val DOH = "doh"
+    val VALUES = listOf(AUTO, PLAIN, DOH)
+}
+
+object Provider {
+    // Через TURN-реле звонков. "vk" - wire-значение ядра (config.ClientJSON, freeturn://).
+    const val RELAY = "vk"
+    /** Без реле: DTLS+OBF прямо на peer; не спасает, если IP VPS недоступен. */
+    const val DIRECT = "direct"
+    val VALUES = listOf(RELAY, DIRECT)
+}
+
+object ObfProfile {
+    const val NONE = "none"
+    const val RTPOPUS = "rtpopus"
+    const val RTPOPUS2 = "rtpopus2"
+    const val RTPOPUS3 = "rtpopus3"
+    val VALUES = listOf(NONE, RTPOPUS, RTPOPUS2, RTPOPUS3)
+
+    // Пейсинг (-obf-timing), мс. 20 = ptime Opus, эталон для мимикрии; выше 60 поток
+    // уже не похож на живой звонок и упирается в потолок ~1 пакет на интервал.
+    const val TIMING_OFF = 0
+    const val TIMING_MAX = 60
+    const val TIMING_STEP = 5
+
+    private val KEY_REGEX = Regex("^[0-9a-fA-F]{64}$")
+
+    fun isValidKey(key: String): Boolean = key.matches(KEY_REGEX)
+
+    fun generateKey(): String =
+        ByteArray(32).also { SecureRandom().nextBytes(it) }.toHex()
+}
+
+// Ядро не принимает IPv6-адреса в скобках.
+object HostPort {
+    private val REGEX = Regex("""^[\w.\-]+:\d{1,5}$""")
+
+    fun isValid(value: String): Boolean =
+        value.matches(REGEX) && value.substringAfterLast(":").toInt() in 1..65535
+}
+
+object ClientId {
+    private val ID_REGEX = Regex("^[0-9a-f]{32}$")
+
+    fun isValid(id: String): Boolean = id.matches(ID_REGEX)
+
+    fun generate(): String =
+        ByteArray(16).also { SecureRandom().nextBytes(it) }.toHex()
+}
+
+/** Режим проброса (-mode): udp - датаграммы WireGuard, tcp - поток Xray/sing-box. */
+object ProxyMode {
+    const val UDP = "udp"
+    const val TCP = "tcp"
+    val VALUES = listOf(UDP, TCP)
+}
+
+object TunnelTransport {
+    const val NONE = "none"
+    const val WIREGUARD = "wireguard"
+    const val DEFAULT_TUNNEL_NAME = "freeturn-wg"
+    val VALUES = listOf(NONE, WIREGUARD)
+}
+
+object SplitTunnelMode {
+    const val ALL = "all"
+    const val INCLUDE = "include"
+    const val EXCLUDE = "exclude"
+    val VALUES = listOf(ALL, INCLUDE, EXCLUDE)
+}

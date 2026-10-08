@@ -1,0 +1,11 @@
+<resources>
+    <!-- Тёмная половина ручного DayNight (см. values/themes.xml). -->
+    <style name="Base.Theme.FreeTurn" parent="android:Theme.Material.NoActionBar" />
+
+    <!-- Splash screen theme (Core Splash Screen API) — dark variant -->
+    <style name="Theme.FreeTurn.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">#FF111318</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <item name="postSplashScreenTheme">@style/Theme.FreeTurn</item>
+    </style>
+</resources>

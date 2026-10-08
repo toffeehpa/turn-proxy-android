@@ -1,0 +1,31 @@
+.gradle
+/local.properties
+/.idea/
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Signing
+keystore.properties
+*.jks
+*.keystore
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Build outputs
+**/build/
+**/release/
+
+# Ядро - качается таской fetchFreeturnAar из релизов free-turn-proxy
+/app/libs/
+
+# Claude Code
+.claude/
+CLAUDE.md
+AGENTS.md

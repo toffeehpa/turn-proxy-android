@@ -1,0 +1,174 @@
+package com.freeturn.app.data.share
+
+import com.freeturn.app.data.config.ClientConfig
+import com.freeturn.app.data.config.KcpProfile
+import com.freeturn.app.data.config.ProxyMode
+import com.freeturn.app.data.server.Server
+import com.freeturn.app.data.server.ServerOpts
+import org.junit.Assert.assertEquals
+import org.junit.Test
+
+class ShareLinkBuilderTest {
+
+    @Test
+    fun `bond is shared only for TCP without a WG config`() {
+        val srv = Server(
+            name = "bond",
+            client = ClientConfig(serverAddress = "1.2.3.4:56000", bond = true),
+            opts = ServerOpts(proxyMode = ProxyMode.TCP)
+        )
+        fun shared(server: Server, wg: String? = null) =
+            FreeturnLink.parse(ShareLinkBuilder.build(server, ShareInfo(), "guest", wg)).getOrThrow()
+        assertEquals(true, shared(srv).bond)
+        assertEquals(false, shared(srv.copy(opts = ServerOpts())).bond)
+        assertEquals(false, shared(srv, "[Interface]\nAddress=10.8.0.2/32").bond)
+    }
+
+    private val key = "ab".repeat(32)
+
+    private fun server(
+        useUdp: Boolean = false,
+        callLink: String = "",
+        opts: ServerOpts = ServerOpts()
+    ) = Server(
+        name = "Мой сервер",
+        client = ClientConfig(
+            serverAddress = "1.2.3.4:56000",
+            useUdp = useUdp,
+            callLink = callLink
+        ),
+        opts = opts
+    )
+
+    @Test
+    fun `server run args take priority over local opts`() {
+        val srv = server(opts = ServerOpts("rtpopus", "ff".repeat(32)))
+        val info = ShareInfo(obfProfile = "rtpopus", obfKey = key, wgBackend = true)
+        val link = FreeturnLink.parse(ShareLinkBuilder.build(srv, info, "Гость", null)).getOrThrow()
+        assertEquals(key, link.obfKey)       // ключ с сервера, не локальный
+        assertEquals("Гость", link.name)
+    }
+
+    @Test
+    fun `fallback to local opts when server never started`() {
+        val srv = server(opts = ServerOpts("rtpopus", key))
+        val link = FreeturnLink.parse(
+            ShareLinkBuilder.build(srv, ShareInfo(), "u", null)
+        ).getOrThrow()
+        assertEquals("rtpopus", link.obfProfile)
+        assertEquals(key, link.obfKey)
+    }
+
+    // Сервер стартовал без обфускации - локальные opts всё равно не подмешиваем.
+    @Test
+    fun `started server without obf wins over local opts`() {
+        val srv = server(opts = ServerOpts("rtpopus", key))
+        val link = FreeturnLink.parse(
+            ShareLinkBuilder.build(srv, ShareInfo(obfProfile = "none"), "u", null)
+        ).getOrThrow()
+        assertEquals("", link.obfProfile)
+        assertEquals("", link.obfKey)
+    }
+
+    @Test
+    fun `invalid obf key is dropped`() {
+        val srv = server(opts = ServerOpts("rtpopus", "короткий"))
+        val link = FreeturnLink.parse(ShareLinkBuilder.build(srv, ShareInfo(), "u", null)).getOrThrow()
+        assertEquals("", link.obfProfile)
+        assertEquals("", link.obfKey)
+    }
+
+    @Test
+    fun `wg conf is normalized comments and blanks stripped`() {
+        val conf = "[Interface]\n# комментарий\n  PrivateKey = abc=  \n\n; ещё\n[Peer]\nPublicKey = def="
+        val link = FreeturnLink.parse(
+            ShareLinkBuilder.build(server(), ShareInfo(wgBackend = true), "u", conf)
+        ).getOrThrow()
+        assertEquals("[Interface]\nPrivateKey = abc=\n[Peer]\nPublicKey = def=", link.wgConf)
+    }
+
+    @Test
+    fun `mtu line stripped from conf`() {
+        val conf = "[Interface]\nPrivateKey = abc=\nMTU = 1500\n[Peer]\nPublicKey = def="
+        val link = FreeturnLink.parse(
+            ShareLinkBuilder.build(server(), ShareInfo(wgBackend = true), "u", conf)
+        ).getOrThrow()
+        assertEquals("[Interface]\nPrivateKey = abc=\n[Peer]\nPublicKey = def=", link.wgConf)
+    }
+
+    @Test
+    fun `proxy share has no wg field`() {
+        val raw = ShareLinkBuilder.build(server(), ShareInfo(obfProfile = "none"), "u", null)
+        assertEquals("", FreeturnLink.parse(raw).getOrThrow().wgConf)
+    }
+
+    @Test
+    fun `client id carried into cid field`() {
+        val cid = "0123456789abcdef0123456789abcdef"
+        val link = FreeturnLink.parse(
+            ShareLinkBuilder.build(server(), ShareInfo(), "u", null, cid)
+        ).getOrThrow()
+        assertEquals(cid, link.clientId)
+    }
+
+    @Test
+    fun `threads and streams-per-cred carried over`() {
+        val srv = Server(
+            name = "s",
+            client = ClientConfig(serverAddress = "1.2.3.4:56000", threads = 6, streamsPerCred = 4)
+        )
+        val link = FreeturnLink.parse(ShareLinkBuilder.build(srv, ShareInfo(), "u", null)).getOrThrow()
+        assertEquals(6, link.n)
+        assertEquals(4, link.streamsPerCred)
+    }
+
+    @Test
+    fun `tcp mode from live server wins over local opts`() {
+        val srv = server(opts = ServerOpts(proxyMode = ProxyMode.TCP, kcp = KcpProfile.MOBILE))
+        val info = ShareInfo(mode = ProxyMode.UDP, obfProfile = "none")
+        val link = FreeturnLink.parse(ShareLinkBuilder.build(srv, info, "u", null)).getOrThrow()
+        assertEquals("", link.mode)
+        assertEquals(null, link.kcp)
+    }
+
+    @Test
+    fun `tcp mode and non-default arq carried over`() {
+        val srv = server(opts = ServerOpts(proxyMode = ProxyMode.TCP, kcp = KcpProfile.MOBILE))
+        val link = FreeturnLink.parse(ShareLinkBuilder.build(srv, ShareInfo(), "u", null)).getOrThrow()
+        assertEquals(ProxyMode.TCP, link.mode)
+        assertEquals(KcpProfile.MOBILE, link.kcp)
+    }
+
+    // Дефолтный ARQ у получателя и так дефолтный - в ссылке ему делать нечего.
+    @Test
+    fun `default arq is omitted`() {
+        val srv = server(opts = ServerOpts(proxyMode = ProxyMode.TCP))
+        val link = FreeturnLink.parse(ShareLinkBuilder.build(srv, ShareInfo(), "u", null)).getOrThrow()
+        assertEquals(ProxyMode.TCP, link.mode)
+        assertEquals(null, link.kcp)
+    }
+
+    @Test
+    fun `call link stays out of the link by default`() {
+        val srv = server(callLink = "https://call.example/call/abc")
+        val link = FreeturnLink.parse(ShareLinkBuilder.build(srv, ShareInfo(), "u", null)).getOrThrow()
+        assertEquals("", link.callLink)
+    }
+
+    @Test
+    fun `call link from the field carried over`() {
+        val srv = server(callLink = " https://call.example/call/abc ")
+        val link = FreeturnLink.parse(
+            ShareLinkBuilder.build(srv, ShareInfo(), "u", null, callLink = " https://call.example/call/own ")
+        ).getOrThrow()
+        assertEquals("https://call.example/call/own", link.callLink)
+    }
+
+    @Test
+    fun `udp transport flag carried over`() {
+        val link = FreeturnLink.parse(
+            ShareLinkBuilder.build(server(useUdp = true), ShareInfo(), "u", null)
+        ).getOrThrow()
+        assertEquals("udp", link.transport)
+    }
+}

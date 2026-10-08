@@ -1,0 +1,165 @@
+package com.freeturn.app.viewmodel.share
+
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.freeturn.app.data.AppPreferences
+import com.freeturn.app.data.DnsList
+import com.freeturn.app.data.config.ClientConfig
+import com.freeturn.app.data.config.DnsMode
+import com.freeturn.app.data.config.HostPort
+import com.freeturn.app.data.config.KcpProfile
+import com.freeturn.app.data.config.ObfProfile
+import com.freeturn.app.data.config.Provider
+import com.freeturn.app.data.config.ProxyMode
+import com.freeturn.app.data.server.Server
+import com.freeturn.app.data.server.ServerOpts
+import com.freeturn.app.data.config.SshConfig
+import com.freeturn.app.data.config.TunnelTransport
+import com.freeturn.app.data.share.FreeturnLink
+import com.freeturn.app.domain.share.LinkImportBus
+import com.freeturn.app.viewmodel.HapticEvent
+import com.freeturn.app.viewmodel.Haptics
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+
+data class ImportUiState(
+    val link: FreeturnLink? = null,
+    val serverName: String = "",
+    val callLink: String = "",
+    val duplicateAddress: Boolean = false,
+    val duplicateConf: Boolean = false,
+    val parseError: Boolean = false,
+    val saving: Boolean = false,
+    val saveError: Boolean = false,
+    val saved: Boolean = false
+) {
+    val canConfirm: Boolean
+        get() = link != null && !saving && !saved &&
+            (link.provider != Provider.RELAY || callLink.isNotBlank())
+}
+
+class ImportViewModel(
+    private val prefs: AppPreferences,
+    bus: LinkImportBus,
+    private val haptics: Haptics
+) : ViewModel() {
+
+    private val _uiState = MutableStateFlow(ImportUiState())
+    val uiState: StateFlow<ImportUiState> = _uiState.asStateFlow()
+
+    val privacyMode: StateFlow<Boolean> = prefs.privacyModeFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
+
+    init {
+        viewModelScope.launch {
+            bus.links.collect(::offer)
+        }
+    }
+
+    private suspend fun offer(raw: String) {
+        if (_uiState.value.saving) return
+        FreeturnLink.parse(raw).mapCatching { it.also(::requireUsable) }.fold(
+            onSuccess = { link ->
+                val servers = prefs.serversSnapshot.first().list
+                val normalizedConf = link.wgConf.trim()
+                _uiState.value = ImportUiState(
+                    link = link,
+                    serverName = link.name.ifBlank { link.peer.substringBefore(':') },
+                    callLink = link.callLink.trim(),
+                    duplicateAddress = servers.any {
+                        it.client.serverAddress.equals(link.peer, ignoreCase = true)
+                    },
+                    duplicateConf = normalizedConf.isNotEmpty() && servers.any {
+                        it.client.wireGuardConfig.trim() == normalizedConf
+                    }
+                )
+            },
+            onFailure = {
+                haptics.perform(HapticEvent.ERROR)
+                _uiState.value = ImportUiState(parseError = true)
+            }
+        )
+    }
+
+    fun setServerName(name: String) = _uiState.update { it.copy(serverName = name) }
+
+    fun setCallLink(value: String) = _uiState.update { it.copy(callLink = value) }
+
+    fun confirm(fallbackName: String) {
+        val st = _uiState.value
+        val link = st.link ?: return
+        if (!st.canConfirm) return
+        _uiState.update { it.copy(saving = true, saveError = false) }
+        viewModelScope.launch {
+            val saved = try {
+                prefs.addServer(buildServer(link, st, fallbackName), activate = true)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (_: Exception) {
+                null
+            }
+            if (saved == null) {
+                haptics.perform(HapticEvent.ERROR)
+                _uiState.update { it.copy(saving = false, saveError = true) }
+                return@launch
+            }
+            haptics.perform(HapticEvent.SUCCESS)
+            _uiState.update { it.copy(saving = false, saved = true) }
+        }
+    }
+
+    fun dismiss() {
+        if (_uiState.value.saving) return
+        _uiState.value = ImportUiState()
+    }
+
+    // Незнакомый провайдер или непригодную обфускацию отбиваем на входе: профиль
+    // стартовал бы с конфигом, который отвергнет ядро или сервер.
+    private fun requireUsable(link: FreeturnLink) {
+        require(link.provider in Provider.VALUES) { "unknown provider" }
+        require(!link.bond || (link.mode == ProxyMode.TCP && link.wgConf.isBlank())) { "bond requires TCP proxy" }
+        if (link.obfProfile.isBlank() || link.obfProfile == ObfProfile.NONE) return
+        require(link.obfProfile in ObfProfile.VALUES) { "unknown obf profile" }
+        require(ObfProfile.isValidKey(link.obfKey)) { "bad obf key" }
+    }
+
+    private fun buildServer(link: FreeturnLink, st: ImportUiState, fallbackName: String): Server {
+        val wgConf = link.wgConf.trim()
+        return Server(
+            name = st.serverName.trim().ifBlank { fallbackName },
+            ssh = SshConfig(),
+            client = ClientConfig(
+                serverAddress = link.peer,
+                callLink = st.callLink.trim(),
+                provider = link.provider,
+                useUdp = link.transport == "udp",
+                bond = link.bond,
+                threads = link.n.takeIf { it > 0 } ?: ClientConfig.DEFAULT_THREADS,
+                streamsPerCred = link.streamsPerCred.takeIf { it > 0 }
+                    ?: ClientConfig.DEFAULT_STREAMS_PER_CRED,
+                tunnelTransport = if (wgConf.isNotEmpty()) TunnelTransport.WIREGUARD
+                else TunnelTransport.NONE,
+                wireGuardConfig = wgConf,
+                clientId = link.clientId.trim(),
+                dnsMode = link.dnsMode.takeIf { it in DnsMode.VALUES } ?: DnsMode.AUTO,
+                customDns = DnsList.normalize(link.dnsServers),
+                manualCaptcha = link.manualCaptcha,
+                localPort = link.listen.takeIf(HostPort::isValid) ?: ClientConfig.DEFAULT_LOCAL_PORT
+            ),
+            opts = ServerOpts(
+                obfProfile = link.obfProfile.ifBlank { ObfProfile.NONE },
+                obfKey = link.obfKey,
+                obfTimingMs = link.obfTimingMs.coerceIn(0, ObfProfile.TIMING_MAX),
+                proxyMode = if (link.mode == ProxyMode.TCP) ProxyMode.TCP else ProxyMode.UDP,
+                kcp = link.kcp ?: KcpProfile.DEFAULT
+            )
+        )
+    }
+}
