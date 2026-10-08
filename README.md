@@ -1,3 +1,11 @@
+# [Новая Telegram-группа](https://t.me/+n0K5nDUXU1sxOWVh)
+
+> [!WARNING]
+> **Внимание:** Выполнено экстренное восстановление репозитория.<br>
+> <br>
+> **Оригинальный автор:** [Anton samosvalishe](https://web.archive.org/web/20260702184016/https://github.com/samosvalishe)<br>
+> Проект был чрезвычайно восстановлен в связи с таинственным исчезнованием оригинального проекта и самого автора.
+
 <div align="center">
 
 [![Core](https://img.shields.io/badge/Core-free--turn--proxy-blue?logo=github&logoColor=white)](https://github.com/toffeehpa/turn-proxy-android)
