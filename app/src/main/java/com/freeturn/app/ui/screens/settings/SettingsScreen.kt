@@ -42,6 +42,7 @@ fun SettingsScreen(
     onOpenServers: () -> Unit,
     onOpenApp: () -> Unit,
     onOpenAdvanced: () -> Unit,
+    onOpenExperimental: () -> Unit,
     onOpenAbout: () -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -71,7 +72,7 @@ fun SettingsScreen(
                 verticalArrangement = Arrangement.spacedBy(Spacing.lg)
             ) {
                 SettingsGroup {
-                    SettingsGroupItem(0, 4) {
+                    SettingsGroupItem(0, 5) {
                         SettingsEntryRow(
                             iconRes = R.drawable.database_24px,
                             title = stringResource(R.string.settings_servers),
@@ -79,7 +80,7 @@ fun SettingsScreen(
                             onClick = onOpenServers
                         )
                     }
-                    SettingsGroupItem(1, 4) {
+                    SettingsGroupItem(1, 5) {
                         SettingsEntryRow(
                             iconRes = R.drawable.mobile_24px,
                             title = stringResource(R.string.settings_app),
@@ -87,7 +88,7 @@ fun SettingsScreen(
                             onClick = onOpenApp
                         )
                     }
-                    SettingsGroupItem(2, 4) {
+                    SettingsGroupItem(2, 5) {
                         SettingsEntryRow(
                             iconRes = R.drawable.tune_24px,
                             title = stringResource(R.string.settings_advanced),
@@ -95,7 +96,15 @@ fun SettingsScreen(
                             onClick = onOpenAdvanced
                         )
                     }
-                    SettingsGroupItem(3, 4) {
+                    SettingsGroupItem(3, 5) {
+                        SettingsEntryRow(
+                            iconRes = R.drawable.experiment_24px,
+                            title = stringResource(R.string.settings_experimental),
+                            subtitle = stringResource(R.string.settings_experimental_desc),
+                            onClick = onOpenExperimental
+                        )
+                    }
+                    SettingsGroupItem(4, 5) {
                         SettingsEntryRow(
                             iconRes = R.drawable.info_24px,
                             title = stringResource(R.string.settings_about),

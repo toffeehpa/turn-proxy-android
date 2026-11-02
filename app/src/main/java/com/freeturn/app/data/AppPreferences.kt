@@ -10,6 +10,7 @@ import com.freeturn.app.R
 import com.freeturn.app.data.backup.BackupData
 import com.freeturn.app.data.config.ClientConfig
 import com.freeturn.app.data.config.ClientId
+import com.freeturn.app.data.config.SfuPreset
 import com.freeturn.app.data.config.SshConfig
 import com.freeturn.app.data.server.Server
 import com.freeturn.app.data.server.ServerJson
@@ -53,6 +54,9 @@ class AppPreferences(context: Context) {
         val BATTERY_PROMPT_SHOWN = booleanPreferencesKey("battery_prompt_shown")
         val RESTART_SERVER_ON_SWITCH = booleanPreferencesKey("restart_server_on_switch")
         val HOTSPOT_PROXY = booleanPreferencesKey("hotspot_proxy")
+        val SFU_ENABLED = booleanPreferencesKey("exp_sfu_enabled")
+        val SFU_LINK = stringPreferencesKey("exp_sfu_link")
+        val SFU_PRESET = stringPreferencesKey("exp_sfu_preset")
         val SERVERS_JSON = stringPreferencesKey("servers_json")
         val ACTIVE_SERVER_ID = stringPreferencesKey("active_server_id")
         val OWN_CLIENT_ID = stringPreferencesKey("own_client_id")
@@ -165,6 +169,11 @@ class AppPreferences(context: Context) {
     // Раздача туннеля по SOCKS5 наружу. Работает только в WG-режиме: без tun сокеты
     // сервера уходят напрямую, и клиенты хотспота получили бы канал мимо туннеля.
     val hotspotProxyEnabledFlow: Flow<Boolean> = prefFlow { prefs -> prefs[HOTSPOT_PROXY] ?: false }
+
+    // Experimental: SFU-канал поверх звонка вместо TURN, глобально для всех серверов.
+    val sfuEnabledFlow: Flow<Boolean> = prefFlow { prefs -> prefs[SFU_ENABLED] ?: false }
+    val sfuLinkFlow: Flow<String> = prefFlow { prefs -> prefs[SFU_LINK] ?: "" }
+    val sfuPresetFlow: Flow<String> = prefFlow { prefs -> prefs[SFU_PRESET] ?: SfuPreset.BALANCED }
 
     val tgSubscribeShownFlow: Flow<Boolean> = prefFlow { prefs -> prefs[TG_SUBSCRIBE_SHOWN] ?: false }
 
@@ -340,6 +349,18 @@ class AppPreferences(context: Context) {
 
     suspend fun setHotspotProxyEnabled(enabled: Boolean) {
         context.dataStore.edit { it[HOTSPOT_PROXY] = enabled }
+    }
+
+    suspend fun setSfuEnabled(enabled: Boolean) {
+        context.dataStore.edit { it[SFU_ENABLED] = enabled }
+    }
+
+    suspend fun setSfuLink(link: String) {
+        context.dataStore.edit { it[SFU_LINK] = link }
+    }
+
+    suspend fun setSfuPreset(preset: String) {
+        context.dataStore.edit { it[SFU_PRESET] = preset }
     }
 
     suspend fun setTgSubscribeShown() {

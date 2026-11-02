@@ -27,7 +27,12 @@ data class CoreConfigJson(
     /** Только для `proxy.mode = tcp`: в udp ядро отвергает любое отличие от своего дефолта. */
     val kcp: Kcp? = null,
     val tunnel: Tunnel,
+    /** Только для `provider = sfu`: темп видеотрека, null - дефолты ядра. */
+    val sfu: Sfu? = null,
 ) {
+    @Serializable
+    data class Sfu(val fps: Int, val batch: Int)
+
     @Serializable
     data class Turn(val n: Int, val transport: String, val host: String, val port: String)
 
@@ -110,6 +115,7 @@ fun ClientConfig.toCoreJson(
     srv: ServerOpts,
     carrierDns: String? = null,
     ownClientId: String = "",
+    sfu: CoreConfigJson.Sfu? = null,
 ): String {
     val dnsServers = coreDnsServers { carrierDns }
 
@@ -128,7 +134,7 @@ fun ClientConfig.toCoreJson(
             routes = false,
             turn = CoreConfigJson.Turn(
                 // Поле обязательное, а CLI без -n брал свой дефолт.
-                n = if (provider == Provider.DIRECT) ClientConfig.DIRECT_THREADS
+                n = if (provider == Provider.DIRECT || provider == Provider.SFU) ClientConfig.DIRECT_THREADS
                 else threads.takeIf { it > 0 } ?: ClientConfig.DEFAULT_THREADS,
                 transport = if (useUdp) CoreConfigJson.TRANSPORT_UDP else CoreConfigJson.TRANSPORT_TCP,
                 host = if (magicSwitch) magicTurn.trim() else "",
@@ -158,6 +164,7 @@ fun ClientConfig.toCoreJson(
             dns = CoreConfigJson.Dns(mode = dnsMode, servers = dnsServers),
             log = CoreConfigJson.Log(debug = debugMode),
             kcp = if (tcpMode) srv.kcp.toCoreJson() else null,
+            sfu = if (provider == Provider.SFU) sfu else null,
             tunnel = CoreConfigJson.Tunnel(
                 // Бэкенд туннеля один: awg лишь не глушит маскировку, на чистом
                 // WG-конфиге равен wg - а wg молча срезал бы amnezia-параметры.

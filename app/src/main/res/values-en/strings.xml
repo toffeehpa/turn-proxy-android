@@ -386,6 +386,15 @@
     <!-- Продвинутые / отладка -->
     <string name="settings_advanced">Advanced</string>
     <string name="settings_advanced_desc">Debugging and diagnostics</string>
+    <string name="settings_experimental">Experimental Features</string>
+    <string name="settings_experimental_desc">New and untested, may not work</string>
+    <string name="sfu_title">VK Calls SFU channel</string>
+    <string name="sfu_desc">Traffic rides a video track through the call SFU instead of TURN. Needs sfubridge on the server</string>
+    <string name="sfu_link_label">Call link for SFU</string>
+    <string name="sfu_link_hint">The same link sfubridge uses on the server</string>
+    <string name="sfu_link_error">Expected a link like https://vk.ru/call/join/…</string>
+    <string name="sfu_apply_note">Applies from the next connection, to every server</string>
+    <string name="sfu_preset_title">Frames per second</string>
     <string name="nerd_mode">Debug mode</string>
     <string name="nerd_mode_desc">Shows debug info: core state, server journal and verbose logs</string>
     <string name="hotspot_proxy_desc">Listen on 0.0.0.0:1080 to share the WireGuard tunnel over a hotspot</string>

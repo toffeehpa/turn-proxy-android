@@ -3,6 +3,7 @@ package com.freeturn.app.viewmodel.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.freeturn.app.data.AppPreferences
+import com.freeturn.app.data.config.SfuPreset
 import com.freeturn.app.domain.UpdateState
 import com.freeturn.app.domain.update.AppUpdater
 import kotlinx.coroutines.flow.Flow
@@ -35,6 +36,9 @@ class SettingsViewModel(
     val autoConnect: StateFlow<Boolean> = prefs.autoConnectFlow.state(false)
     val restartServerOnSwitch: StateFlow<Boolean> = prefs.restartServerOnSwitchFlow.state(false)
     val hotspotProxyEnabled: StateFlow<Boolean> = prefs.hotspotProxyEnabledFlow.state(false)
+    val sfuEnabled: StateFlow<Boolean> = prefs.sfuEnabledFlow.state(false)
+    val sfuLink: StateFlow<String> = prefs.sfuLinkFlow.state("")
+    val sfuPreset: StateFlow<String> = prefs.sfuPresetFlow.state(SfuPreset.BALANCED)
     val suppressUpdatePrompt: StateFlow<Boolean> = prefs.suppressUpdatePromptFlow.state(false)
     val suppressTgPrompt: StateFlow<Boolean> = prefs.suppressTgPromptFlow.state(false)
 
@@ -90,6 +94,18 @@ class SettingsViewModel(
     // Применяется со следующего запуска: слушающий порт поднимается вместе с сессией.
     fun setHotspotProxyEnabled(enabled: Boolean) {
         viewModelScope.launch { prefs.setHotspotProxyEnabled(enabled) }
+    }
+
+    fun setSfuEnabled(enabled: Boolean) {
+        viewModelScope.launch { prefs.setSfuEnabled(enabled) }
+    }
+
+    fun setSfuLink(link: String) {
+        viewModelScope.launch { prefs.setSfuLink(link) }
+    }
+
+    fun setSfuPreset(preset: String) {
+        viewModelScope.launch { prefs.setSfuPreset(preset) }
     }
 
     fun setDynamicTheme(enabled: Boolean) {

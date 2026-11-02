@@ -22,6 +22,7 @@ import kotlinx.serialization.Serializable
 @Serializable data object AppSettings
 @Serializable data object About
 @Serializable data object Advanced
+@Serializable data object Experimental
 @Serializable data object ServersList
 @Serializable data object SshSetup
 @Serializable data class ServerDetail(val serverId: String)

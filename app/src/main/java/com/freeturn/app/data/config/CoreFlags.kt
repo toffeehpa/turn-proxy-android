@@ -26,7 +26,28 @@ object Provider {
     const val RELAY = "vk"
     /** Без реле: DTLS+OBF прямо на peer; не спасает, если IP VPS недоступен. */
     const val DIRECT = "direct"
+    /** Experimental: видеотрек через SFU звонка. В профиль сервера не пишется, только оверрайд. */
+    const val SFU = "sfu"
     val VALUES = listOf(RELAY, DIRECT)
+}
+
+/**
+ * Пресеты SFU-канала: кадр уходит раз в 1/fps, и пакет ждёт ближайшего, а batch -
+ * сколько пакетов влезает в кадр. Пресет задаёт только сторону клиента (отдача);
+ * темп обратного направления держит sfubridge на сервере.
+ */
+object SfuPreset {
+    const val LATENCY = "latency"
+    const val BALANCED = "balanced"
+    const val SAVER = "saver"
+    val VALUES = listOf(LATENCY, BALANCED, SAVER)
+
+    fun toCore(preset: String): CoreConfigJson.Sfu? = when (preset) {
+        LATENCY -> CoreConfigJson.Sfu(fps = 240, batch = 16)
+        SAVER -> CoreConfigJson.Sfu(fps = 60, batch = 64)
+        // Баланс - дефолты ядра (120/64): поле не шлём, старый AAR его бы не понял.
+        else -> null
+    }
 }
 
 object ObfProfile {

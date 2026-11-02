@@ -117,6 +117,7 @@ class ProxyNotifier(private val service: Service) {
     private fun providerText(provider: String?): String? = when (provider) {
         Provider.RELAY -> service.getString(R.string.provider_relay)
         Provider.DIRECT -> service.getString(R.string.provider_direct)
+        Provider.SFU -> "SFU"
         else -> null
     }
 

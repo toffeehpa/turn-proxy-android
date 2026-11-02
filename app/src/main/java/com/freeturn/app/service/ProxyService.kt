@@ -18,6 +18,7 @@ import com.freeturn.app.data.AppPreferences
 import com.freeturn.app.data.CoreCommand
 import com.freeturn.app.data.config.ClientConfig
 import com.freeturn.app.data.config.Provider
+import com.freeturn.app.data.config.SfuPreset
 import com.freeturn.app.data.config.coreDnsServers
 import com.freeturn.app.data.config.toCoreJson
 import com.freeturn.app.data.server.ServerOpts
@@ -192,7 +193,10 @@ class ProxyService : VpnService() {
     private suspend fun startSession(session: Long, fresh: Boolean) {
         // Один снимок профиля: раздельные чтения смешали бы peer одного сервера с obf другого.
         val server = prefs.activeServerFlow.first()
-        val cfg = server?.client ?: ClientConfig()
+        val sfuLink = prefs.sfuLinkFlow.first().trim()
+        val cfg = (server?.client ?: ClientConfig()).let {
+            if (prefs.sfuEnabledFlow.first() && sfuLink.isNotEmpty()) it.copy(provider = Provider.SFU, callLink = sfuLink) else it
+        }
         val opts = server?.opts ?: ServerOpts()
         if (!isCurrent(session)) return
         // Лог рестарта не чистим: строка "Процесс запущен" от App - единственный след того,
@@ -319,6 +323,7 @@ class ProxyService : VpnService() {
         srv = opts,
         carrierDns = if (cfg.useCarrierDns) network.physicalDnsServers() else null,
         ownClientId = prefs.ownClientId(),
+        sfu = SfuPreset.toCore(prefs.sfuPresetFlow.first()),
     )
 
     private fun onNetworkHandover() {

@@ -12,6 +12,7 @@ import com.freeturn.app.ui.screens.serverdetail.ServerDetailScreen
 import com.freeturn.app.ui.screens.settings.AboutScreen
 import com.freeturn.app.ui.screens.settings.AdvancedScreen
 import com.freeturn.app.ui.screens.settings.AppScreen
+import com.freeturn.app.ui.screens.settings.ExperimentalScreen
 import com.freeturn.app.ui.screens.settings.NerdScreen
 import com.freeturn.app.ui.screens.settings.ServersListScreen
 import com.freeturn.app.ui.screens.settings.SettingsScreen
@@ -35,6 +36,7 @@ internal fun NavGraphBuilder.settingsGraph(
                 onOpenServers = { navController.navigate(ServersList) },
                 onOpenApp = { navController.navigate(AppSettings) },
                 onOpenAdvanced = { navController.navigate(Advanced) },
+                onOpenExperimental = { navController.navigate(Experimental) },
                 onOpenAbout = { navController.navigate(About) }
             )
         }
@@ -52,6 +54,13 @@ internal fun NavGraphBuilder.settingsGraph(
 
         composable<Advanced> {
             AdvancedScreen(
+                settingsViewModel = settingsViewModel,
+                onBack = { navController.popBackStack() }
+            )
+        }
+
+        composable<Experimental> {
+            ExperimentalScreen(
                 settingsViewModel = settingsViewModel,
                 onBack = { navController.popBackStack() }
             )

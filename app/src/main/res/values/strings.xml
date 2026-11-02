@@ -415,6 +415,15 @@
     <!-- Продвинутые / отладка -->
     <string name="settings_advanced">Продвинутые</string>
     <string name="settings_advanced_desc">Отладка и диагностика</string>
+    <string name="settings_experimental">Экспериментальные функции</string>
+    <string name="settings_experimental_desc">Новое и непроверенное, может не работать</string>
+    <string name="sfu_title">SFU-канал VK Calls</string>
+    <string name="sfu_desc">Трафик идёт видеотреком через SFU звонка, а не через TURN. Нужен sfubridge на сервере</string>
+    <string name="sfu_link_label">Ссылка на звонок для SFU</string>
+    <string name="sfu_link_hint">Та же ссылка, что у sfubridge на сервере</string>
+    <string name="sfu_link_error">Нужна ссылка вида https://vk.ru/call/join/…</string>
+    <string name="sfu_apply_note">Применяется со следующего подключения ко всем серверам</string>
+    <string name="sfu_preset_title">Кадров в секунду</string>
     <string name="nerd_mode">Режим отладки</string>
     <string name="nerd_mode_desc">Открывает отладочную информацию: состояние ядра, журнал сервера и подробные логи</string>
     <string name="hotspot_proxy" translatable="false">SOCKS5 Hotspot</string>
