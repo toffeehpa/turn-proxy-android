@@ -36,6 +36,7 @@
 
 ## Благодарности
 
+- **[@samosvalishe](https://github.com/samosvalishe)** (Антон) - прежний владелец и автор ядра и приложения, отказался от проекта
 - **[@Moroka8](https://github.com/Moroka8)** - форк ядра [vk-turn-proxy](https://github.com/Moroka8/vk-turn-proxy)
 - **[@alexmac6574](https://github.com/alexmac6574)** - форк ядра [vk-turn-proxy](https://github.com/alexmac6574/vk-turn-proxy)
 - **[@cacggghp](https://github.com/cacggghp)** - оригинальное [vk-turn-proxy](https://github.com/cacggghp/vk-turn-proxy)
