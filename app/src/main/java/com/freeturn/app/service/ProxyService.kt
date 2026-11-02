@@ -193,7 +193,8 @@ class ProxyService : VpnService() {
     private suspend fun startSession(session: Long, fresh: Boolean) {
         // Один снимок профиля: раздельные чтения смешали бы peer одного сервера с obf другого.
         val server = prefs.activeServerFlow.first()
-        val sfuLink = prefs.sfuLinkFlow.first().trim()
+        // Пустое поле - ссылка сервера: на ней же сидит мост, поставленный по SSH.
+        val sfuLink = prefs.sfuLinkFlow.first().trim().ifEmpty { server?.client?.callLink?.trim().orEmpty() }
         val cfg = (server?.client ?: ClientConfig()).let {
             if (prefs.sfuEnabledFlow.first() && sfuLink.isNotEmpty()) it.copy(provider = Provider.SFU, callLink = sfuLink) else it
         }

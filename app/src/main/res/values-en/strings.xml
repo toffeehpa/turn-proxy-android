@@ -389,9 +389,9 @@
     <string name="settings_experimental">Experimental Features</string>
     <string name="settings_experimental_desc">New and untested, may not work</string>
     <string name="sfu_title">VK Calls SFU channel</string>
-    <string name="sfu_desc">Traffic rides a video track through the call SFU instead of TURN. Needs sfubridge on the server</string>
+    <string name="sfu_desc">Traffic rides a video track through the call SFU instead of TURN. The bridge is installed on the server during SSH setup</string>
     <string name="sfu_link_label">Call link for SFU</string>
-    <string name="sfu_link_hint">The same link sfubridge uses on the server</string>
+    <string name="sfu_link_hint">Empty - the call link from the server settings</string>
     <string name="sfu_link_error">Expected a link like https://vk.ru/call/join/…</string>
     <string name="sfu_apply_note">Applies from the next connection, to every server</string>
     <string name="sfu_preset_title">Frames per second</string>
