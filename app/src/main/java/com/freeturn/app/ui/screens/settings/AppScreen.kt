@@ -82,6 +82,7 @@ import com.freeturn.app.ui.components.SettingsGroupItem
 import com.freeturn.app.ui.components.SettingsRowIcon
 import com.freeturn.app.ui.components.SettingsSwitchRow
 import com.freeturn.app.ui.screens.home.WINTER_VIBE
+import com.freeturn.app.ui.theme.BRAND_PALETTE
 import com.freeturn.app.ui.theme.Spacing
 import com.freeturn.app.ui.util.hapticClickable
 import com.freeturn.app.viewmodel.settings.BackupEvent
@@ -158,7 +159,10 @@ fun AppScreen(
             ) {
                 SectionLabel(stringResource(R.string.app_section_interface))
                 SettingsGroup {
-                    SettingsGroupItem(0, 4) {
+                    // Без тумблера темы в группе на строку меньше - позиции задают скругления.
+                    val themeRow = if (BRAND_PALETTE) 0 else 1
+                    val rows = 3 + themeRow
+                    SettingsGroupItem(0, rows) {
                         SettingsSwitchRow(
                             title = stringResource(R.string.privacy_mode_title),
                             subtitle = stringResource(R.string.privacy_mode_desc),
@@ -167,16 +171,18 @@ fun AppScreen(
                             onCheckedChange = { settingsViewModel.setPrivacyMode(it) }
                         )
                     }
-                    SettingsGroupItem(1, 4) {
-                        SettingsSwitchRow(
-                            title = stringResource(R.string.dynamic_theme_title),
-                            subtitle = stringResource(R.string.dynamic_theme_desc),
-                            iconRes = R.drawable.palette_24px,
-                            checked = dynamicTheme,
-                            onCheckedChange = { settingsViewModel.setDynamicTheme(it) }
-                        )
+                    if (!BRAND_PALETTE) {
+                        SettingsGroupItem(1, rows) {
+                            SettingsSwitchRow(
+                                title = stringResource(R.string.dynamic_theme_title),
+                                subtitle = stringResource(R.string.dynamic_theme_desc),
+                                iconRes = R.drawable.palette_24px,
+                                checked = dynamicTheme,
+                                onCheckedChange = { settingsViewModel.setDynamicTheme(it) }
+                            )
+                        }
                     }
-                    SettingsGroupItem(2, 4) {
+                    SettingsGroupItem(1 + themeRow, rows) {
                         SettingsSwitchRow(
                             title = stringResource(R.string.seasonal_decor_title),
                             subtitle = stringResource(
@@ -187,7 +193,7 @@ fun AppScreen(
                             onCheckedChange = { settingsViewModel.setSeasonalDecor(it) }
                         )
                     }
-                    SettingsGroupItem(3, 4) {
+                    SettingsGroupItem(2 + themeRow, rows) {
                         LanguageRow()
                     }
                 }

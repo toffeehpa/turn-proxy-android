@@ -28,6 +28,13 @@ import androidx.core.view.WindowCompat
  */
 val LocalReducedMotion = staticCompositionLocalOf { false }
 
+/**
+ * Своя фиолетовая палитра вместо Material You. Снята с обоев, на которых приложению шёл
+ * этот цвет, и теперь одна на всех: под чужие обои больше не подстраиваемся. false
+ * возвращает динамику и тумблер в настройках.
+ */
+internal const val BRAND_PALETTE = true
+
 private val lightScheme = lightColorScheme(
     primary = primaryLight,
     onPrimary = onPrimaryLight,
@@ -115,7 +122,7 @@ fun FreeTurnTheme(
     val context = LocalContext.current
     val colorScheme = remember(context, darkTheme, dynamicColor) {
         when {
-            dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
+            dynamicColor && !BRAND_PALETTE && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S ->
                 if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
             darkTheme -> darkScheme
             else -> lightScheme
