@@ -221,8 +221,8 @@ class AppUpdater(private val context: Context) {
             "https://api.github.com/repos/toffeehpa/turn-proxy-android/releases/latest"
 
         fun isNewer(remote: String, current: String): Boolean {
-            val r = remote.split(".").map { it.toIntOrNull() ?: 0 }
-            val c = current.split(".").map { it.toIntOrNull() ?: 0 }
+            val r = remote.substringBefore('-').split(".").map { it.toIntOrNull() ?: 0 }
+            val c = current.substringBefore('-').split(".").map { it.toIntOrNull() ?: 0 }
             for (i in 0 until maxOf(r.size, c.size)) {
                 val rv = r.getOrElse(i) { 0 }
                 val cv = c.getOrElse(i) { 0 }
