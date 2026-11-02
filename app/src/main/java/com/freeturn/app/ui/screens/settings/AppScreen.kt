@@ -81,6 +81,7 @@ import com.freeturn.app.ui.components.SettingsGroup
 import com.freeturn.app.ui.components.SettingsGroupItem
 import com.freeturn.app.ui.components.SettingsRowIcon
 import com.freeturn.app.ui.components.SettingsSwitchRow
+import com.freeturn.app.ui.screens.home.WINTER_VIBE
 import com.freeturn.app.ui.theme.Spacing
 import com.freeturn.app.ui.util.hapticClickable
 import com.freeturn.app.viewmodel.settings.BackupEvent
@@ -178,8 +179,10 @@ fun AppScreen(
                     SettingsGroupItem(2, 4) {
                         SettingsSwitchRow(
                             title = stringResource(R.string.seasonal_decor_title),
-                            subtitle = stringResource(R.string.seasonal_decor_desc),
-                            iconRes = R.drawable.eco_outlined_24px,
+                            subtitle = stringResource(
+                                if (WINTER_VIBE) R.string.seasonal_decor_desc_winter else R.string.seasonal_decor_desc
+                            ),
+                            iconRes = if (WINTER_VIBE) R.drawable.ac_unit_24px else R.drawable.eco_outlined_24px,
                             checked = seasonalDecor,
                             onCheckedChange = { settingsViewModel.setSeasonalDecor(it) }
                         )

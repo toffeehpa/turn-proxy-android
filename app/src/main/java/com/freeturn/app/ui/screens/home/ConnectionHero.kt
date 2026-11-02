@@ -80,7 +80,7 @@ internal fun ConnectionHero(
 ) {
     val kind = status.phase.heroKind()
     val reducedMotion = LocalReducedMotion.current
-    val decor = AUTUMN_VIBE && decorEnabled
+    val decor = (AUTUMN_VIBE || WINTER_VIBE) && decorEnabled
     // Ноль - ещё не жали: с него разлёт не запускается.
     var burstKey by remember { mutableIntStateOf(0) }
 
@@ -226,7 +226,11 @@ private fun HeroToggleButton(
         }
 
         if (decor) {
-            AutumnLeafBurst(burstKey = burstKey, buttonSize = HeroButtonSize)
+            if (WINTER_VIBE) {
+                SnowBurst(burstKey = burstKey, buttonSize = HeroButtonSize)
+            } else {
+                AutumnLeafBurst(burstKey = burstKey, buttonSize = HeroButtonSize)
+            }
         }
     }
 }

@@ -53,7 +53,7 @@ import kotlin.random.Random
  * кнопки не трогаем: на Material You цвета приходят с обоев, и своя пара выбивалась бы
  * из темы пользователя.
  */
-internal const val AUTUMN_VIBE = true
+internal const val AUTUMN_VIBE = false
 
 private const val LEAF_COUNT = 7
 private const val BURST_MS = 950
