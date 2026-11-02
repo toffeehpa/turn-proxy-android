@@ -64,6 +64,23 @@ class ServerCommandTest {
     }
 
     @Test
+    fun `apply sends sfu room only for a valid call link`() {
+        val link = "https://vk.ru/call/join/abc_DEF-123"
+        assertEquals(link, sfuRoomOf(" $link "))
+        assertEquals("", sfuRoomOf("vk.ru/call/join/abc"))
+        assertEquals("", sfuRoomOf("https://evil.example/call/join/abc"))
+        val argv = ApplyOptions(
+            method = ServerMethod.SYSTEMD,
+            backend = ServerBackend.NEW,
+            listenPort = 56000,
+            sfuRoom = sfuRoomOf(link)
+        ).toArgv()
+        assertTrue("--sfu-room=$link" in argv)
+        // Пустая ссылка снимает мост, поэтому ключ шлётся всегда.
+        assertTrue("--sfu-room=" in ApplyOptions(method = ServerMethod.SYSTEMD, backend = ServerBackend.NEW, listenPort = 56000).toArgv())
+    }
+
+    @Test
     fun `uname maps to release asset`() {
         assertEquals("server-linux-amd64", ServerControl.serverAsset("x86_64"))
         assertEquals("server-linux-arm64", ServerControl.serverAsset("aarch64"))

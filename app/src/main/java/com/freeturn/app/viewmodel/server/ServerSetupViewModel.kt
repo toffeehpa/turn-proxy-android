@@ -20,6 +20,7 @@ import com.freeturn.app.domain.proxy.ProxyOrchestrator
 import com.freeturn.app.domain.server.ApplyOptions
 import com.freeturn.app.domain.server.ApplyResult
 import com.freeturn.app.domain.server.ServerSetupRepository
+import com.freeturn.app.domain.server.sfuRoomOf
 import com.freeturn.app.viewmodel.HapticEvent
 import com.freeturn.app.viewmodel.Haptics
 import com.freeturn.app.viewmodel.uiError
@@ -333,7 +334,8 @@ private fun SetupConfigDraft.toApplyOptions() = ApplyOptions(
     wgPort = wgPort.toIntOrNull() ?: ServerBackend.DEFAULT_WG_PORT,
     wgNet = wgNet.trim(),
     proxyMode = proxyMode,
-    obfProfile = obfProfile
+    obfProfile = obfProfile,
+    sfuRoom = sfuRoomOf(callLink)
 )
 
 /** Черновик по конфигу прошлой установки: подсеть WG менять нельзя, остальное - как было. */

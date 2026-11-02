@@ -60,7 +60,9 @@ data class ApplyOptions(
     val kcp: KcpProfile = KcpProfile.DEFAULT,
     val obfProfile: String = ObfProfile.NONE,
     /** Пусто при включённой обфускации - ключ сгенерирует сервер и вернёт в ответе. */
-    val obfKey: String = ""
+    val obfKey: String = "",
+    /** Ссылка звонка для SFU-моста; пусто - мост снимается. */
+    val sfuRoom: String = ""
 ) {
     fun toArgv(): List<String> = buildList {
         add("apply")
@@ -77,8 +79,14 @@ data class ApplyOptions(
         add("--obf-profile=$obfProfile")
         if (obfProfile != ObfProfile.NONE && obfKey.isNotBlank()) add("--obf-key=$obfKey")
         if (proxyMode == ProxyMode.TCP) addAll(kcpArgs(kcp))
+        add("--sfu-room=$sfuRoom")
     }
 }
+
+private val vkCallLink = Regex("""^https://(m\.)?vk\.(ru|com)/call/join/[A-Za-z0-9_-]+/?$""")
+
+/** Мосту - только ссылка, которую пропустит install.sh: кривая сорвала бы весь apply. */
+fun sfuRoomOf(callLink: String): String = callLink.trim().takeIf { vkCallLink.matches(it) }.orEmpty()
 
 /** KCP_ARGS на сервере перезаписываются целиком: шлём весь профиль, не только отличия. */
 private fun kcpArgs(p: KcpProfile): List<String> = listOf(
@@ -102,7 +110,8 @@ fun Server.applyOptions(): ApplyOptions = ApplyOptions(
     proxyMode = opts.proxyMode,
     kcp = opts.kcp,
     obfProfile = opts.obfProfile,
-    obfKey = opts.obfKey
+    obfKey = opts.obfKey,
+    sfuRoom = sfuRoomOf(client.callLink)
 )
 
 private const val DEFAULT_LISTEN_PORT = 56000
