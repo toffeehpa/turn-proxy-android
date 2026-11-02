@@ -95,20 +95,20 @@ fun AboutScreen(onBack: () -> Unit) {
                         SettingsEntryRow(
                             iconRes = R.drawable.code_24px,
                             title = stringResource(R.string.android_client),
-                            subtitle = "samosvalishe/turn-proxy-android",
+                            subtitle = "toffeehpa/turn-proxy-android",
                             trailingRes = R.drawable.open_in_new_24px,
                             trailingTint = MaterialTheme.colorScheme.primary,
-                            onClick = { open("https://github.com/samosvalishe/turn-proxy-android") }
+                            onClick = { open("https://github.com/toffeehpa/turn-proxy-android") }
                         )
                     }
                     SettingsGroupItem(1, 3) {
                         SettingsEntryRow(
                             iconRes = R.drawable.terminal_24px,
                             title = stringResource(R.string.proxy_core),
-                            subtitle = "samosvalishe/free-turn-proxy",
+                            subtitle = "toffeehpa/free-turn-proxy",
                             trailingRes = R.drawable.open_in_new_24px,
                             trailingTint = MaterialTheme.colorScheme.primary,
-                            onClick = { open("https://github.com/samosvalishe/free-turn-proxy") }
+                            onClick = { open("https://github.com/toffeehpa/free-turn-proxy") }
                         )
                     }
                     SettingsGroupItem(2, 3) {
@@ -117,7 +117,7 @@ fun AboutScreen(onBack: () -> Unit) {
                             title = stringResource(R.string.tg_channel),
                             trailingRes = R.drawable.open_in_new_24px,
                             trailingTint = MaterialTheme.colorScheme.primary,
-                            onClick = { open("https://t.me/+53nh4UNiSv5lNTgy") }
+                            onClick = { open("https://t.me/+n0K5nDUXU1sxOWVh") }
                         )
                     }
                 }

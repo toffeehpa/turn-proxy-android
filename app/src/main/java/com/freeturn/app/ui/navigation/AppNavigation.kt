@@ -180,7 +180,7 @@ fun AppNavigation(
         val uriHandler = LocalUriHandler.current
         TelegramSubscribeDialog(
             onSubscribe = {
-                uriHandler.openUri("https://t.me/+53nh4UNiSv5lNTgy")
+                uriHandler.openUri("https://t.me/+n0K5nDUXU1sxOWVh")
                 settingsViewModel.setTgSubscribeShown()
                 showTgDialog = false
             },
