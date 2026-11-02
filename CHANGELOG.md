@@ -1,5 +1,25 @@
 # Changelog
 
+## [5.1.0](https://github.com/toffeehpa/turn-proxy-android/compare/v5.0.2...v5.1.0) (2026-11-02)
+
+
+### Features
+
+* bump aar ([12575fd](https://github.com/toffeehpa/turn-proxy-android/commit/12575fd5995ee328fc1fa9b6aa2df424e9d96d02))
+* **settings:** пустая ссылка SFU берётся из настроек сервера ([0f356fa](https://github.com/toffeehpa/turn-proxy-android/commit/0f356fac5ffb71d2af81721952b571916d121aa7))
+* **settings:** раздел Experimental Features, SFU-канал и fps ([2298467](https://github.com/toffeehpa/turn-proxy-android/commit/2298467dc0312fe8134238d177e688519ed6f159))
+* **setup:** ссылка звонка уходит sfu-мосту на сервере ([cf2a83b](https://github.com/toffeehpa/turn-proxy-android/commit/cf2a83bbf929907b46825c3bb80d1e4bdcd9f833))
+* **ui:** иконка в тон новой палитре ([229500d](https://github.com/toffeehpa/turn-proxy-android/commit/229500d3cd39789a969f908f50867bfa25206577))
+* **ui:** своя фиолетовая палитра вместо Material You ([132bbb7](https://github.com/toffeehpa/turn-proxy-android/commit/132bbb72b793b39b84e03274fbf070659dfad2e9))
+* **ui:** снег вместо листвы на зиму ([39ccf0e](https://github.com/toffeehpa/turn-proxy-android/commit/39ccf0e37c4f032a7c3730cabb10ee6d995342fa))
+
+
+### Fixes
+
+* **update:** суффикс -debug не ломает сравнение версий ([1482dc0](https://github.com/toffeehpa/turn-proxy-android/commit/1482dc00662c954cd5df3d3ba4525e26cc2aae18))
+* имя FreeTurn и в debug-сборке ([3e8ee46](https://github.com/toffeehpa/turn-proxy-android/commit/3e8ee46602ff2eebd146d9bbaa768e4ea4b32eeb))
+* ссылки на репозитории toffeehpa и новую группу ([53b1d4d](https://github.com/toffeehpa/turn-proxy-android/commit/53b1d4dbcaa6d1284fbf772cd33be43715a8942d))
+
 ## [5.0.2](https://github.com/samosvalishe/turn-proxy-android/compare/v5.0.1...v5.0.2) (2026-09-24)
 
 
