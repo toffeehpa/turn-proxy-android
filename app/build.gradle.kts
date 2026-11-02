@@ -65,7 +65,7 @@ android {
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
-            resValue("string", "app_name", "FreeTurn Debug")
+            resValue("string", "app_name", "FreeTurn")
         }
         release {
             resValue("string", "app_name", "FreeTurn")
