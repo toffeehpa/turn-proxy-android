@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.1.1](https://github.com/toffeehpa/turn-proxy-android/compare/v5.1.0...v5.1.1) (2026-11-16)
+
+
+### Fixes
+
+* bump aar ([f96981d](https://github.com/toffeehpa/turn-proxy-android/commit/f96981d213f6bbf854d7105278580df1262ad6cd))
+
 ## [5.1.0](https://github.com/toffeehpa/turn-proxy-android/compare/v5.0.2...v5.1.0) (2026-11-02)
 
 
